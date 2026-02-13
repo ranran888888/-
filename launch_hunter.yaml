@@ -1,0 +1,143 @@
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# 打新猎手配置 - mod1
+# 版本: 1.0
+# 冻结接口约束: snake_case键名, 有type/default/description
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+version: "1.0"
+enabled: true
+
+# ─────────────────────────────────────────────
+# 维度1: Novelty (新颖度, 30分)
+# ─────────────────────────────────────────────
+novelty:
+  max_score: 30
+  description: "项目是否首次提及或有新进展"
+  scores:
+    first_mention: 30       # project-registry中不存在
+    new_progress: 15        # 存在但有新进展(合约/流动性/stage)
+    known_repeat: 5         # 已知项目无新进展
+    no_project_id: 30       # 无法判定项目ID时保守偏高
+
+# ─────────────────────────────────────────────
+# 维度2: Verifiability (可验证性, 20分)
+# ─────────────────────────────────────────────
+verifiability:
+  max_score: 20
+  description: "链上数据完整度和合约验证状态"
+  scores:
+    contract_verified: 20   # 有合约 + 已验证
+    contract_unverified: 10 # 有合约 + 未验证
+    no_contract: 5          # 无合约
+
+# ─────────────────────────────────────────────
+# 维度3: Narrative (叙事强度, 20分) 【补丁P10】
+# ─────────────────────────────────────────────
+narrative:
+  max_score: 20
+  description: "Sonnet深度叙事分析(4子维度各0-5分)"
+  timeout_seconds: 10
+  default_per_dimension: 2
+  sub_dimensions:
+    - "track"           # 赛道定位
+    - "pain_point"      # 痛点清晰度
+    - "uniqueness"      # 独特性
+    - "credibility"     # 可信度
+
+# ─────────────────────────────────────────────
+# 维度4: Innovation (创新度, 20分)
+# ─────────────────────────────────────────────
+innovation:
+  max_score: 20
+  description: "创新关键词匹配 + concept-tracker新概念"
+  scores:
+    tier_s: 20    # 命中3+关键词 或 2+新概念
+    tier_a: 15    # 命中2关键词 或 1新概念
+    tier_b: 10    # 命中1关键词
+    default: 3    # 无命中
+
+# ─────────────────────────────────────────────
+# 维度5: Timeliness (时效性, 10分)
+# ─────────────────────────────────────────────
+timeliness:
+  max_score: 10
+  description: "T1_captured - T0_first_seen 捕获延迟"
+  thresholds:
+    tier_s: 60      # <60秒
+    tier_a: 300     # <300秒(5分钟)
+    tier_b: 1800    # <1800秒(30分钟)
+  scores:
+    tier_s: 10
+    tier_a: 7
+    tier_b: 4
+    default: 1
+
+# ─────────────────────────────────────────────
+# 【补丁P1】A类动作信号词 (供preprocessor判定event_type=launch)
+# ─────────────────────────────────────────────
+launch_action_keywords:
+  en:
+    - "mint"
+    - "launch"
+    - "presale"
+    - "whitelist"
+    - "fair launch"
+    - "IDO"
+    - "IEO"
+    - "IPO"
+    - "token sale"
+    - "inscription"
+    - "inscribe"
+    - "brc-20"
+    - "brc20"
+    - "runes"
+    - "ordinals"
+    - "free mint"
+    - "genesis mint"
+    - "live now"
+    - "minting now"
+    - "NFT drop"
+    - "NFT mint"
+    - "token generation"
+    - "TGE"
+    - "launchpad"
+    - "public sale"
+    - "stealth launch"
+  zh:
+    - "铸造"
+    - "白名单"
+    - "公售"
+    - "预售"
+    - "打新"
+    - "铭文"
+    - "打铭文"
+    - "打钱"
+    - "发行"
+    - "上线"
+    - "发布"
+    - "创世"
+
+# ─────────────────────────────────────────────
+# 创新关键词库 (维度4使用)
+# ─────────────────────────────────────────────
+innovation_keywords:
+  en:
+    - "new primitive"
+    - "new paradigm"
+    - "zero to one"
+    - "breakthrough"
+    - "first of its kind"
+    - "novel approach"
+    - "game changer"
+    - "disruptive"
+    - "revolutionary"
+    - "groundbreaking"
+  zh:
+    - "新范式"
+    - "新原语"
+    - "从零到一"
+    - "颠覆"
+    - "首创"
+    - "革命性"
+    - "突破性"
+    - "创新性"
