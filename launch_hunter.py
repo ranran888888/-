@@ -512,7 +512,7 @@ class LaunchHunter:
         判断是否有新进展:
           - 原来没合约, 现在有了
           - 原来没流动性, 现在有了
-          - stage变化 (如 announced → testnet → mainnet)
+          - stage变化 (当前事件暗示的stage > registry记录的stage)
         """
         onchain = enriched.onchain or OnchainData()
 
@@ -524,19 +524,51 @@ class LaunchHunter:
         if onchain.has_liquidity and not existing.get('has_token', False):
             return True
 
-        # stage变化 (enricher通过project-registry填充stage)
+        # stage变化: 从当前事件raw_text提取隐含stage, 与registry记录对比
         existing_stage = existing.get('stage', '')
         if existing_stage:
-            # project-registry的stage字段由enricher维护
-            # 如果当前事件关联的项目已有更高阶段信息, 视为进展
-            # 阶段顺序: announced → testnet → mainnet → launched
-            stage_order = {'announced': 0, 'testnet': 1, 'mainnet': 2, 'launched': 3}
-            current_stage = existing.get('current_stage', existing_stage)
-            if (stage_order.get(current_stage, -1) >
-                    stage_order.get(existing_stage, -1)):
-                return True
+            implied_stage = self._infer_stage_from_text(enriched.raw_text)
+            if implied_stage:
+                stage_order = {
+                    'announced': 0, 'testnet': 1, 'mainnet': 2, 'launched': 3
+                }
+                existing_rank = stage_order.get(existing_stage, -1)
+                implied_rank = stage_order.get(implied_stage, -1)
+                if implied_rank > existing_rank:
+                    return True
 
         return False
+
+    @staticmethod
+    def _infer_stage_from_text(raw_text: str) -> str:
+        """
+        从raw_text推断项目当前stage
+
+        关键词匹配, 取最高阶stage:
+          launched/live/TGE  → launched
+          mainnet            → mainnet
+          testnet/devnet     → testnet
+          announced/upcoming → announced
+        """
+        text_lower = raw_text.lower()
+
+        # 从高到低匹配, 命中即返回
+        if any(kw in text_lower for kw in [
+            'launched', 'live now', 'tge', 'token generation',
+            'minting now', 'fair launch', 'public sale'
+        ]):
+            return 'launched'
+
+        if any(kw in text_lower for kw in ['mainnet', 'main net', 'production']):
+            return 'mainnet'
+
+        if any(kw in text_lower for kw in ['testnet', 'test net', 'devnet', 'dev net']):
+            return 'testnet'
+
+        if any(kw in text_lower for kw in ['announced', 'upcoming', 'coming soon']):
+            return 'announced'
+
+        return ''
 
     # ─────────────────────────────────────────────
     # 维度2: Verifiability (20分)
