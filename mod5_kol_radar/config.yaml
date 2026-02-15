@@ -1,0 +1,16 @@
+{
+  "version": "1.1",
+  "enabled": true,
+  "module_name": "mod5_kol_radar",
+  "evaluation_window_days": 30,
+  "comparison_semantics": {"lead_time": "gt", "hit_rate": "gt", "accuracy": "gt", "independence": "gt", "consistency": "lt"},
+  "min_samples": {"for_evaluation": 10, "for_upgrade": 30, "for_downgrade": 10},
+  "tier_thresholds": {"S": 80, "A": 60, "B": 40, "C": 20},
+  "data_cleaning": {"enabled": true, "t3_before_t0_policy": "nullify", "invalid_feedback_policy": "nullify", "score_out_of_range_policy": "clamp", "score_clamp_min": 0, "score_clamp_max": 100},
+  "lead_time": {"max_score": 30, "thresholds": {"tier_s": 1800, "tier_a": 600, "tier_b": 300, "tier_c": 60}, "scores": {"tier_s": 30, "tier_a": 20, "tier_b": 12, "tier_c": 6, "default": 0}},
+  "hit_rate": {"max_score": 25, "thresholds": {"tier_s": 0.7, "tier_a": 0.5, "tier_b": 0.3}, "scores": {"tier_s": 25, "tier_a": 18, "tier_b": 10, "default": 0}},
+  "accuracy": {"max_score": 20, "thresholds": {"tier_s": 0.8, "tier_a": 0.6, "tier_b": 0.4}, "scores": {"tier_s": 20, "tier_a": 14, "tier_b": 8, "default": 0}},
+  "independence": {"max_score": 15, "thresholds": {"tier_s": 0.8, "tier_a": 0.6, "tier_b": 0.4}, "scores": {"tier_s": 15, "tier_a": 10, "tier_b": 6, "default": 0}},
+  "consistency": {"max_score": 10, "thresholds": {"tier_s": 10, "tier_a": 20, "tier_b": 30}, "scores": {"tier_s": 10, "tier_a": 7, "tier_b": 4, "default": 0}},
+  "emergency_mode": {"enabled": false, "fallback_strategy": "use_current_tiers"}
+}
